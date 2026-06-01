@@ -24,7 +24,7 @@ Key documents:
 - Write user stories in the format: *As a [user], I want [goal] so that [outcome]*
 - Break features into tasks small enough to ship in a day or two
 - Flag scope creep, premature features, and anything that splits focus from the beachhead
-- Coordinate across the team: Jordan (product strategy), Chase (growth), Grace (privacy), Quinn (analytics), Max (engineering)
+- Coordinate across the team: Jordan (product strategy), Earle (growth), Erin (privacy), Chuck (analytics), Durow (engineering)
 - Keep the 90-day plan honest — call out when something is behind or at risk
 
 ## Prioritization principles
