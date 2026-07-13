@@ -1,0 +1,142 @@
+@import "tailwindcss";
+@import "@fontsource/oswald/600.css";
+@import "@fontsource/oswald/700.css";
+
+/* ── Dark theme defaults (no attribute needed) ── */
+:root {
+  --bg: #1c1a17;
+  --surface: #2a2621;
+  --surface-2: #332e28;
+  --accent-red: #9b2020;
+  --amber: #d4860a;
+  --amber-dim: #a36408;
+  --text: #f0e8d5;
+  --text-muted: #a09070;
+  --border: #3d3730;
+  --star-fill: #d4860a;
+  --error: #e05555;
+}
+
+/* ── Light theme ── */
+:root[data-theme="light"] {
+  --bg: #f5eed9;
+  --surface: #fffdf5;
+  --surface-2: #f0e8d0;
+  --accent-red: #8b1a1a;
+  --amber: #b8700a;
+  --amber-dim: #8a5208;
+  --text: #1c1a17;
+  --text-muted: #5a4a30;
+  --border: #d4c8a8;
+  --star-fill: #b8700a;
+  --error: #c0392b;
+}
+
+/* ── Tailwind v4 design tokens (inline = runtime CSS var resolution) ── */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-accent-red: var(--accent-red);
+  --color-amber: var(--amber);
+  --color-amber-dim: var(--amber-dim);
+  --color-text: var(--text);
+  --color-text-muted: var(--text-muted);
+  --color-border: var(--border);
+  --color-star: var(--star-fill);
+  --color-error: var(--error);
+
+  --font-heading: "Oswald", system-ui, sans-serif;
+  --font-body: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+/* ── Base ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+  min-height: 100dvh;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3, h4, h5, h6, .font-heading {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+/* ── BBQ noise grain overlay (apply .grain class to sections) ── */
+.grain {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+
+.grain::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Input base style ── */
+.input-base {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 0.375rem;
+  padding: 0.625rem 0.875rem;
+  font-family: var(--font-body);
+  font-size: 1rem;
+  width: 100%;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.input-base:focus {
+  border-color: var(--amber);
+}
+
+.input-base::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Shake animation for wrong PIN ── */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-8px); }
+  40%       { transform: translateX(8px); }
+  60%       { transform: translateX(-6px); }
+  80%       { transform: translateX(6px); }
+}
+
+.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }

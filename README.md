@@ -1,26 +1,18 @@
-# RecruitPath
+# JGQ BBQ Tracker
 
-College sports recruiting CRM for student athletes and families.
+Private, invite-only PWA for tracking BBQ restaurant visits with obsessive detail. Built for a small family group.
 
-## Claude Code Agents
+## Quick Start
 
-Four advisory agents live in `.claude/agents/`. They review, suggest, and report — a human approves changes.
+1. Copy `.env.example` to `.env.local` and fill in your credentials
+2. Run `supabase init && supabase link --project-ref <your-ref>`
+3. Run `supabase db push` to apply migrations
+4. Deploy Edge Functions (see CLAUDE.md for full setup)
+5. Insert first admin user via Supabase SQL editor (see CLAUDE.md)
+6. `pnpm install && pnpm dev`
 
-| Agent | Role | Tools | Model |
-|---|---|---|---|
-| product-strategist | Fit/algorithm accuracy tuning | Read-only | sonnet |
-| growth-bizdev | Sales & business development | Read-only | sonnet |
-| privacy-governance | Minors' data & compliance (COPPA/state/FERPA) | Read-only | sonnet |
-| data-analytics | Usage analytics & insight reports | Read + Bash | sonnet |
+## Stack
 
-### Setup
-1. Agents are already in `.claude/agents/` — they load automatically.
-2. Restart your Claude Code session to pick up any changes.
-3. Confirm with the `/agents` command.
+React 19 + Vite 8 + TypeScript + Tailwind v4 + Supabase + Cloudflare R2 + Google Places API
 
-### Usage
-Call an agent explicitly: *"Have the privacy-governance agent review this migration."*
-Or Claude Code routes automatically based on your request.
-
-## Docs
-- `docs/GTM-and-Business-Plan.md` — go-to-market strategy and business plan
+See `CLAUDE.md` for the full architecture reference.
