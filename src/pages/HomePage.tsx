@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { loadMapsLib, loadMarkerLib } from '../lib/places'
 import VisitCard from '../components/visit/VisitCard'
 import type { VisitWithRelations, Restaurant } from '../types'
@@ -18,19 +18,8 @@ export default function HomePage() {
   }, [])
 
   async function loadVisits() {
-    const { data } = await supabase
-      .from('visits')
-      .select(`
-        *,
-        restaurant:restaurants(*),
-        user:users(id, name),
-        sides(*),
-        sauces(*),
-        photos(*)
-      `)
-      .order('visit_date', { ascending: false })
-      .limit(60)
-    setVisits((data as VisitWithRelations[]) ?? [])
+    const data = await api.get<VisitWithRelations[]>('/visits/feed')
+    setVisits(data)
     setLoading(false)
   }
 

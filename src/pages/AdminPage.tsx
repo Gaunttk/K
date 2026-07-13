@@ -13,7 +13,7 @@ export default function AdminPage() {
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
 
-  const adminFnUrl = `${import.meta.env.VITE_SUPABASE_URL as string}/functions/v1/admin-users`
+  const adminFnUrl = `${import.meta.env.VITE_API_URL as string}/admin/users`
 
   function checkSecret(e: React.FormEvent) {
     e.preventDefault()

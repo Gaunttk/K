@@ -12,7 +12,6 @@
   "dependencies": {
     "@fontsource/oswald": "^5.2.8",
     "@googlemaps/js-api-loader": "^2.1.1",
-    "@supabase/supabase-js": "^2.110.2",
     "browser-image-compression": "^2.0.2",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",

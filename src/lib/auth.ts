@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react'
+import { api } from './api'
 import type { AuthSession, PinAuthResponse } from '../types'
 
 const SESSION_KEY = 'jgq_session'
@@ -21,17 +22,7 @@ export function getSession(): AuthSession | null {
 }
 
 export async function login(userId: string, pin: string): Promise<AuthSession> {
-  const url = `${import.meta.env.VITE_SUPABASE_URL as string}/functions/v1/pin-auth`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ userId, pin }),
-  })
-  if (!res.ok) {
-    const data = await res.json() as { error?: string }
-    throw new Error(data.error ?? 'Login failed')
-  }
-  const { jwt, user } = await res.json() as PinAuthResponse
+  const { jwt, user } = await api.post<PinAuthResponse>('/auth/login', { userId, pin })
   const session: AuthSession = {
     userId: user.id,
     name: user.name,

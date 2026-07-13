@@ -1,21 +1,8 @@
+import { api } from './api'
 import type { PhotoLabel, UploadUrlResponse } from '../types'
 
-export async function getUploadUrl(
-  visitId: string,
-  label: PhotoLabel,
-  jwt: string,
-): Promise<UploadUrlResponse> {
-  const url = `${import.meta.env.VITE_SUPABASE_URL as string}/functions/v1/get-upload-url`
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${jwt}`,
-    },
-    body: JSON.stringify({ visitId, label }),
-  })
-  if (!res.ok) throw new Error('Failed to get upload URL')
-  return res.json() as Promise<UploadUrlResponse>
+export async function getUploadUrl(visitId: string, label: PhotoLabel): Promise<UploadUrlResponse> {
+  return api.post<UploadUrlResponse>('/upload-url', { visitId, label })
 }
 
 export async function uploadToR2(file: File, uploadUrl: string): Promise<void> {

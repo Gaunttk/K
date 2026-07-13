@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { getSession } from '../lib/auth'
 import StarPicker from '../components/ui/StarPicker'
 import SpicinessInput from '../components/ui/SpicinessInput'
@@ -36,19 +36,8 @@ export default function VisitDetailPage() {
   }, [id])
 
   async function load(visitId: string) {
-    const { data } = await supabase
-      .from('visits')
-      .select(`
-        *,
-        restaurant:restaurants(*),
-        user:users(id, name),
-        sides(*),
-        sauces(*),
-        photos(*)
-      `)
-      .eq('id', visitId)
-      .single()
-    setVisit(data as VisitWithRelations)
+    const data = await api.get<VisitWithRelations>(`/visits/${visitId}`)
+    setVisit(data)
     setLoading(false)
   }
 

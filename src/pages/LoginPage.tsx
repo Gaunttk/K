@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import { useAuth, getSession } from '../lib/auth'
 import ThemeToggle from '../components/layout/ThemeToggle'
 import type { UserPublic } from '../types'
@@ -20,9 +20,7 @@ export default function LoginPage() {
   }, [navigate])
 
   useEffect(() => {
-    supabase.from('users').select('id, name').order('name').then(({ data }) => {
-      if (data) setUsers(data as UserPublic[])
-    })
+    api.get<UserPublic[]>('/users').then(setUsers).catch(() => null)
   }, [])
 
   useEffect(() => {
@@ -70,7 +68,7 @@ export default function LoginPage() {
               </button>
             ))}
             {users.length === 0 && (
-              <p className="text-center text-sm text-text-muted">No users yet. Set up via Supabase.</p>
+              <p className="text-center text-sm text-text-muted">No users yet. Set up via Admin panel.</p>
             )}
           </div>
         ) : (

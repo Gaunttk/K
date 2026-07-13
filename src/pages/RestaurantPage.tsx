@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { supabase } from '../lib/supabase'
+import { api } from '../lib/api'
 import VisitCard from '../components/visit/VisitCard'
 import StarPicker from '../components/ui/StarPicker'
 import type { Restaurant, VisitWithRelations, Rating } from '../types'
@@ -29,23 +29,12 @@ export default function RestaurantPage() {
   }, [id])
 
   async function load(restaurantId: string) {
-    const [{ data: r }, { data: v }] = await Promise.all([
-      supabase.from('restaurants').select('*').eq('id', restaurantId).single(),
-      supabase
-        .from('visits')
-        .select(`
-          *,
-          restaurant:restaurants(*),
-          user:users(id, name),
-          sides(*),
-          sauces(*),
-          photos(*)
-        `)
-        .eq('restaurant_id', restaurantId)
-        .order('visit_date', { ascending: false }),
+    const [r, v] = await Promise.all([
+      api.get<Restaurant>(`/restaurants/${restaurantId}`),
+      api.get<VisitWithRelations[]>(`/visits?restaurantId=${restaurantId}`),
     ])
-    if (r) setRestaurant(r as Restaurant)
-    if (v) setVisits(v as VisitWithRelations[])
+    setRestaurant(r)
+    setVisits(v)
     setLoading(false)
   }
 

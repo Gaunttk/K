@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { api } from '../../../lib/api'
 import { getSession } from '../../../lib/auth'
 import RestaurantSearch from '../../restaurant/RestaurantSearch'
 import type { VisitFormData, Restaurant, NewRestaurantInput, Side, Sauce } from '../../../types'
@@ -33,15 +33,10 @@ export default function Step1Restaurant({ data, onChange, onNext }: Props) {
     if (restaurantId) {
       const session = getSession()
       if (!session) return
-      const { data: prior } = await supabase
-        .from('visits')
-        .select('id, visit_date, sides(*), sauces(*)')
-        .eq('restaurant_id', restaurantId)
-        .eq('user_id', session.userId)
-        .order('visit_date', { ascending: false })
-        .limit(1)
-        .maybeSingle()
-      if (prior) setPriorVisit(prior as unknown as PriorVisit)
+      const prior = await api.get<PriorVisit | null>(
+        `/visits/prior?restaurantId=${restaurantId}&userId=${session.userId}`
+      )
+      if (prior) setPriorVisit(prior)
     }
   }
 

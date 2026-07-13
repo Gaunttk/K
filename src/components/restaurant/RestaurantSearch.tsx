@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { supabase } from '../../lib/supabase'
+import { api } from '../../lib/api'
 import { attachAutocomplete } from '../../lib/places'
 import type { Restaurant, NewRestaurantInput } from '../../types'
 
@@ -22,15 +22,10 @@ export default function RestaurantSearch({ onSelect }: Props) {
     if (mode === 'new' && googleInputRef.current && import.meta.env.VITE_GOOGLE_MAPS_API_KEY) {
       void attachAutocomplete(googleInputRef.current, async (place) => {
         if (place.google_place_id) {
-          const { data } = await supabase
-            .from('restaurants')
-            .select('*')
-            .eq('google_place_id', place.google_place_id)
-            .maybeSingle()
-          if (data) {
-            onSelect(data as Restaurant)
-            return
-          }
+          const existing = await api.get<Restaurant | null>(
+            `/restaurants/place/${encodeURIComponent(place.google_place_id)}`
+          )
+          if (existing) { onSelect(existing); return }
         }
         setPendingNew(place)
       }).then((cleanup) => {
@@ -47,12 +42,8 @@ export default function RestaurantSearch({ onSelect }: Props) {
     setQuery(q)
     if (q.length < 2) { setResults([]); return }
     setSearching(true)
-    const { data } = await supabase
-      .from('restaurants')
-      .select('*')
-      .ilike('name', `%${q}%`)
-      .limit(8)
-    setResults((data as Restaurant[]) ?? [])
+    const results = await api.get<Restaurant[]>(`/restaurants?q=${encodeURIComponent(q)}`)
+    setResults(results)
     setSearching(false)
   }
 
