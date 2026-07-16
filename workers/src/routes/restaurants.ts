@@ -30,6 +30,7 @@ export async function handleRestaurants(request: Request, env: Env, path: string
     const rows = await sql`
       INSERT INTO restaurants (name, address, lat, lng, google_place_id)
       VALUES (${body.name}, ${body.address}, ${body.lat}, ${body.lng}, ${body.google_place_id ?? null})
+      ON CONFLICT (google_place_id) DO UPDATE SET name = EXCLUDED.name
       RETURNING *
     `
     return ok(rows[0], 201)
