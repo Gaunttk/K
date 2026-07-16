@@ -42,7 +42,7 @@ export async function handleVisits(
   const sql = neon(env.DATABASE_URL)
 
   if (path === '/visits/feed' && request.method === 'GET') {
-    const rows = await sql.unsafe(
+    const rows = await sql(
       VISIT_SELECT + ' GROUP BY v.id, r.id, u.id ORDER BY v.visit_date DESC, v.created_at DESC LIMIT 60'
     )
     return ok(rows)
@@ -69,7 +69,7 @@ export async function handleVisits(
   if (path === '/visits' && request.method === 'GET') {
     const restaurantId = url.searchParams.get('restaurantId')
     if (!restaurantId) return ok([])
-    const rows = await sql.unsafe(
+    const rows = await sql(
       VISIT_SELECT + ' WHERE v.restaurant_id = $1 GROUP BY v.id, r.id, u.id ORDER BY v.visit_date DESC, v.created_at DESC',
       [restaurantId]
     )
@@ -78,7 +78,7 @@ export async function handleVisits(
 
   const visitIdMatch = path.match(/^\/visits\/([^/]+)$/)
   if (visitIdMatch && request.method === 'GET') {
-    const rows = await sql.unsafe(
+    const rows = await sql(
       VISIT_SELECT + ' WHERE v.id = $1 GROUP BY v.id, r.id, u.id',
       [visitIdMatch[1]!]
     )
