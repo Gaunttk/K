@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../lib/api'
-import type { AnalyticsResponse } from '../types'
+import type { AnalyticsResponse, UserPublic } from '../types'
 
 function StatTile({ label, value }: { label: string; value: string }) {
   return (
@@ -27,16 +27,24 @@ function BarRow({ label, count, max }: { label: string; count: number; max: numb
 export default function AnalyticsPage() {
   const navigate = useNavigate()
   const [data, setData] = useState<AnalyticsResponse | null>(null)
+  const [users, setUsers] = useState<UserPublic[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    void load()
+    void api.get<UserPublic[]>('/users').then(setUsers).catch(() => {})
   }, [])
 
-  async function load() {
+  useEffect(() => {
+    void load(userId)
+  }, [userId])
+
+  async function load(filterUserId: string | null) {
+    setLoading(true)
     try {
-      const res = await api.get<AnalyticsResponse>('/analytics')
+      const query = filterUserId ? `?userId=${filterUserId}` : ''
+      const res = await api.get<AnalyticsResponse>(`/analytics${query}`)
       setData(res)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load analytics')
@@ -45,9 +53,43 @@ export default function AnalyticsPage() {
     }
   }
 
-  if (loading) return <div className="py-20 text-center text-text-muted">Loading...</div>
   if (error) return <div className="py-20 text-center text-accent-red">{error}</div>
-  if (!data) return null
+
+  const userFilter = users.length > 1 && (
+    <div className="flex flex-wrap gap-2">
+      <button
+        type="button"
+        onClick={() => setUserId(null)}
+        className={`px-3 py-1.5 rounded-full text-xs font-heading tracking-wider transition-colors border ${
+          userId === null ? 'bg-accent-red text-white border-accent-red' : 'border-border text-text-muted hover:text-text'
+        }`}
+      >
+        Everyone
+      </button>
+      {users.map((u) => (
+        <button
+          key={u.id}
+          type="button"
+          onClick={() => setUserId(u.id)}
+          className={`px-3 py-1.5 rounded-full text-xs font-heading tracking-wider transition-colors border ${
+            userId === u.id ? 'bg-accent-red text-white border-accent-red' : 'border-border text-text-muted hover:text-text'
+          }`}
+        >
+          {u.name}
+        </button>
+      ))}
+    </div>
+  )
+
+  if (loading || !data) {
+    return (
+      <div className="flex flex-col gap-6">
+        <h1 className="text-3xl text-text">Analytics</h1>
+        {userFilter}
+        <div className="py-20 text-center text-text-muted">Loading...</div>
+      </div>
+    )
+  }
 
   const maxMeat = Math.max(1, ...data.meatTypes.map((m) => m.count))
   const maxItem = Math.max(1, ...data.items.map((i) => i.count))
@@ -55,6 +97,8 @@ export default function AnalyticsPage() {
   return (
     <div className="flex flex-col gap-6">
       <h1 className="text-3xl text-text">Analytics</h1>
+
+      {userFilter}
 
       {/* Stat tiles */}
       <div className="grid grid-cols-2 gap-3">

@@ -40,7 +40,9 @@ export default {
       // Protected routes
       if (path.startsWith('/admin/')) return addCors(await handleAdmin(request, env, payload, path))
       if (request.method === 'POST' && path === '/upload-url') return addCors(await handleUploadUrl(request, env))
-      if (request.method === 'GET' && path === '/analytics') return addCors(await handleAnalytics(env))
+      if (request.method === 'GET' && path === '/analytics') {
+        return addCors(await handleAnalytics(env, url.searchParams.get('userId')))
+      }
 
       const photoMatch = path.match(/^\/visits\/([^/]+)\/photos$/)
       if (request.method === 'POST' && photoMatch) return addCors(await handlePhotos(request, env, photoMatch[1]!))

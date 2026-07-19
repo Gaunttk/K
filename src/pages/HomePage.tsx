@@ -2,13 +2,15 @@ import { useState, useEffect, useRef } from 'react'
 import { api } from '../lib/api'
 import { loadMapsLib, loadMarkerLib } from '../lib/places'
 import VisitCard from '../components/visit/VisitCard'
-import type { VisitWithRelations, Restaurant } from '../types'
+import type { VisitWithRelations, Restaurant, UserPublic } from '../types'
 
 type Tab = 'feed' | 'map'
 
 export default function HomePage() {
   const [tab, setTab] = useState<Tab>('feed')
   const [visits, setVisits] = useState<VisitWithRelations[]>([])
+  const [users, setUsers] = useState<UserPublic[]>([])
+  const [userId, setUserId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [mapError, setMapError] = useState<string | null>(null)
@@ -16,8 +18,11 @@ export default function HomePage() {
   const mapInstanceRef = useRef<google.maps.Map | null>(null)
   const markersRef = useRef<google.maps.marker.AdvancedMarkerElement[]>([])
 
+  const filteredVisits = userId ? visits.filter((v) => v.user_id === userId) : visits
+
   useEffect(() => {
     void loadVisits()
+    void api.get<UserPublic[]>('/users').then(setUsers).catch(() => {})
   }, [])
 
   async function loadVisits() {
@@ -39,7 +44,7 @@ export default function HomePage() {
 
   useEffect(() => {
     if (mapInstanceRef.current) void renderMarkers()
-  }, [visits])
+  }, [filteredVisits])
 
   async function initMap() {
     if (!mapRef.current) return
@@ -78,7 +83,7 @@ export default function HomePage() {
 
       const seen = new Set<string>()
       const restaurants: Restaurant[] = []
-      for (const v of visits) {
+      for (const v of filteredVisits) {
         if (!seen.has(v.restaurant.id)) {
           seen.add(v.restaurant.id)
           restaurants.push(v.restaurant)
@@ -122,18 +127,44 @@ export default function HomePage() {
         </div>
       </div>
 
+      {users.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setUserId(null)}
+            className={`px-3 py-1.5 rounded-full text-xs font-heading tracking-wider transition-colors border ${
+              userId === null ? 'bg-accent-red text-white border-accent-red' : 'border-border text-text-muted hover:text-text'
+            }`}
+          >
+            Everyone
+          </button>
+          {users.map((u) => (
+            <button
+              key={u.id}
+              type="button"
+              onClick={() => setUserId(u.id)}
+              className={`px-3 py-1.5 rounded-full text-xs font-heading tracking-wider transition-colors border ${
+                userId === u.id ? 'bg-accent-red text-white border-accent-red' : 'border-border text-text-muted hover:text-text'
+              }`}
+            >
+              {u.name}
+            </button>
+          ))}
+        </div>
+      )}
+
       {tab === 'feed' ? (
         loading ? (
           <div className="py-20 text-center text-text-muted text-sm">Loading...</div>
         ) : error ? (
           <div className="py-20 text-center text-accent-red text-sm">{error}</div>
-        ) : visits.length === 0 ? (
+        ) : filteredVisits.length === 0 ? (
           <div className="py-20 text-center text-text-muted text-sm">
-            No visits yet. Log your first BBQ!
+            {visits.length === 0 ? 'No visits yet. Log your first BBQ!' : 'No visits from this person yet.'}
           </div>
         ) : (
           <div className="flex flex-col gap-4">
-            {visits.map((v) => (
+            {filteredVisits.map((v) => (
               <VisitCard key={v.id} visit={v} />
             ))}
           </div>
