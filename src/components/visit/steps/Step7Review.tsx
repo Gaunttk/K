@@ -49,6 +49,13 @@ export default function Step7Review({ data, onChange, onBack, onSubmitSuccess }:
       <section className="p-4 rounded-lg bg-surface-2 border border-border flex flex-col gap-1">
         <h3 className="font-heading text-lg text-amber">{restaurantName}</h3>
         <p className="text-sm text-text-muted">{data.visitDate}</p>
+        {(data.itemName || data.totalCost) && (
+          <p className="text-sm text-text">
+            {data.itemType && <span className="text-text-muted">{data.itemType}: </span>}
+            {data.itemName}
+            {data.totalCost && <span className="text-amber ml-2">${Number(data.totalCost).toFixed(2)}</span>}
+          </p>
+        )}
         {data.meatTypes.length > 0 && (
           <div className="flex flex-wrap gap-1 mt-2">
             {data.meatTypes.map((m) => (
@@ -83,9 +90,15 @@ export default function Step7Review({ data, onChange, onBack, onSubmitSuccess }:
       )}
 
       {/* Sauces */}
+      {data.regularSauceRating !== null && (
+        <section className="p-4 rounded-lg bg-surface-2 border border-border flex items-center justify-between">
+          <span className="text-sm text-text">Regular Sauce</span>
+          <StarPicker value={data.regularSauceRating} readOnly size="sm" />
+        </section>
+      )}
       {data.sauces.filter((s) => s.name.trim()).length > 0 && (
         <section className="p-4 rounded-lg bg-surface-2 border border-border flex flex-col gap-2">
-          <h4 className="font-heading text-sm text-text-muted tracking-wider">Sauces</h4>
+          <h4 className="font-heading text-sm text-text-muted tracking-wider">Special Sauces</h4>
           {data.sauces.filter((s) => s.name.trim()).map((s) => (
             <div key={s.localId} className="flex flex-col gap-1">
               <div className="flex items-center justify-between">
@@ -105,7 +118,7 @@ export default function Step7Review({ data, onChange, onBack, onSubmitSuccess }:
 
       {/* Comments */}
       <div className="flex flex-col gap-2">
-        <label className="text-sm font-heading text-text-muted tracking-wider">Comments (optional)</label>
+        <label className="text-sm font-heading text-text-muted tracking-wider">Overall Note (optional)</label>
         <textarea
           value={data.comments}
           onChange={(e) => onChange({ ...data, comments: e.target.value })}

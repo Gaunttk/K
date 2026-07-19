@@ -19,8 +19,13 @@ function emptyForm(): VisitFormData {
     newRestaurant: null,
     visitDate: new Date().toISOString().split('T')[0],
     meatTypes: [],
+    itemType: null,
+    itemName: '',
+    totalCost: '',
     ratings: { value: null, quantity: null, atmosphere: null, staff: null, overall: null },
     sides: [],
+    regularSauceRating: null,
+    triedSpecialSauce: null,
     sauces: [],
     photos: PHOTO_LABELS.map((label) => ({
       label,

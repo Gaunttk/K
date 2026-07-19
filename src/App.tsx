@@ -6,6 +6,7 @@ import HomePage from './pages/HomePage'
 import RestaurantPage from './pages/RestaurantPage'
 import NewVisitPage from './pages/NewVisitPage'
 import VisitDetailPage from './pages/VisitDetailPage'
+import AnalyticsPage from './pages/AnalyticsPage'
 import AdminPage from './pages/AdminPage'
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
@@ -35,6 +36,7 @@ export default function App() {
         <Route path="/restaurants/:id" element={<RestaurantPage />} />
         <Route path="/visit/new" element={<NewVisitPage />} />
         <Route path="/visit/:id" element={<VisitDetailPage />} />
+        <Route path="/analytics" element={<AnalyticsPage />} />
       </Route>
       <Route
         path="/admin"

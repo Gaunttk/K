@@ -1,5 +1,7 @@
 export type PhotoLabel = 'Full Meal' | 'Exterior' | 'Interior'
-export type Rating = 1 | 2 | 3 | 4 | 5
+export type Rating = number
+export type SpicinessLevel = 1 | 2 | 3 | 4 | 5
+export type ItemType = 'Sandwich' | 'Plate'
 
 export interface UserPublic {
   id: string
@@ -22,6 +24,10 @@ export interface Visit {
   user_id: string
   visit_date: string
   meat_types: string[]
+  item_type: ItemType | null
+  item_name: string | null
+  total_cost: number | null
+  regular_sauce_rating: Rating | null
   value_rating: Rating
   quantity_rating: Rating
   atmosphere_rating: Rating
@@ -44,7 +50,7 @@ export interface Sauce {
   name: string
   flavor_descriptor: string | null
   rating: Rating
-  spiciness: Rating
+  spiciness: SpicinessLevel
 }
 
 export interface Photo {
@@ -99,7 +105,7 @@ export interface SauceFormItem {
   name: string
   flavor_descriptor: string
   rating: Rating | null
-  spiciness: Rating | null
+  spiciness: SpicinessLevel | null
 }
 
 export type PhotoUploadState = 'idle' | 'compressing' | 'ready' | 'uploading' | 'done' | 'error'
@@ -119,6 +125,9 @@ export interface VisitFormData {
   newRestaurant: NewRestaurantInput | null
   visitDate: string
   meatTypes: string[]
+  itemType: ItemType | null
+  itemName: string
+  totalCost: string
   ratings: {
     value: Rating | null
     quantity: Rating | null
@@ -127,6 +136,8 @@ export interface VisitFormData {
     overall: Rating | null
   }
   sides: SideFormItem[]
+  regularSauceRating: Rating | null
+  triedSpecialSauce: boolean | null
   sauces: SauceFormItem[]
   photos: [PhotoFormItem, PhotoFormItem, PhotoFormItem]
   comments: string
@@ -154,4 +165,43 @@ export interface AdminUser {
   name: string
   is_admin: boolean
   created_at: string
+}
+
+export interface AnalyticsMeatType {
+  meat: string
+  count: number
+}
+
+export interface AnalyticsRestaurant {
+  id: string
+  name: string
+  visit_count: number
+  avg_overall: number
+}
+
+export interface AnalyticsSauce {
+  name: string
+  count: number
+  avg_rating: number
+}
+
+export interface AnalyticsItem {
+  item_name: string
+  item_type: ItemType | null
+  count: number
+}
+
+export interface AnalyticsTotals {
+  total_visits: number
+  total_spent: number | null
+  avg_cost: number | null
+  avg_overall: number | null
+}
+
+export interface AnalyticsResponse {
+  meatTypes: AnalyticsMeatType[]
+  topRestaurants: AnalyticsRestaurant[]
+  bestSauces: AnalyticsSauce[]
+  items: AnalyticsItem[]
+  totals: AnalyticsTotals
 }

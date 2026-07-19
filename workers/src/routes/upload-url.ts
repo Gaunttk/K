@@ -4,7 +4,8 @@ import type { Env } from '../types'
 
 export async function handleUploadUrl(request: Request, env: Env): Promise<Response> {
   const body = await request.json() as { visitId: string; label: string }
-  const r2Key = `visits/${body.visitId}/${body.label.toLowerCase().replace(/\s+/g, '-')}.webp`
+  const slug = body.label.toLowerCase().replace(/\s+/g, '-')
+  const r2Key = `visits/${body.visitId}/${slug}-${Date.now()}.webp`
 
   const s3 = new S3Client({
     region: 'auto',

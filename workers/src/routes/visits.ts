@@ -4,6 +4,14 @@ import type { JwtPayload } from '../jwt'
 
 const VISIT_SELECT = `
   SELECT v.*,
+    to_char(v.visit_date, 'YYYY-MM-DD') AS visit_date,
+    v.value_rating::float8 AS value_rating,
+    v.quantity_rating::float8 AS quantity_rating,
+    v.atmosphere_rating::float8 AS atmosphere_rating,
+    v.staff_rating::float8 AS staff_rating,
+    v.overall_rating::float8 AS overall_rating,
+    v.regular_sauce_rating::float8 AS regular_sauce_rating,
+    v.total_cost::float8 AS total_cost,
     row_to_json(r) AS restaurant,
     json_build_object('id', u.id, 'name', u.name) AS "user",
     COALESCE(json_agg(DISTINCT to_jsonb(s)) FILTER (WHERE s.id IS NOT NULL), '[]') AS sides,
@@ -22,6 +30,10 @@ interface VisitInsertBody {
   restaurant_id: string
   visit_date: string
   meat_types: string[]
+  item_type: 'Sandwich' | 'Plate' | null
+  item_name: string | null
+  total_cost: number | null
+  regular_sauce_rating: number | null
   value_rating: number
   quantity_rating: number
   atmosphere_rating: number
@@ -30,6 +42,20 @@ interface VisitInsertBody {
   comments: string | null
   sides: Array<{ name: string; rating: number }>
   sauces: Array<{ name: string; flavor_descriptor: string | null; rating: number; spiciness: number }>
+}
+
+interface VisitUpdateBody {
+  visit_date: string
+  item_type: 'Sandwich' | 'Plate' | null
+  item_name: string | null
+  total_cost: number | null
+  regular_sauce_rating: number | null
+  value_rating: number
+  quantity_rating: number
+  atmosphere_rating: number
+  staff_rating: number
+  overall_rating: number
+  comments: string | null
 }
 
 export async function handleVisits(
@@ -53,7 +79,7 @@ export async function handleVisits(
     const userId = url.searchParams.get('userId')
     if (!restaurantId || !userId) return ok(null)
     const rows = await sql`
-      SELECT v.id, v.visit_date,
+      SELECT v.id, to_char(v.visit_date, 'YYYY-MM-DD') AS visit_date,
         COALESCE(json_agg(DISTINCT to_jsonb(s)) FILTER (WHERE s.id IS NOT NULL), '[]') AS sides,
         COALESCE(json_agg(DISTINCT to_jsonb(sc)) FILTER (WHERE sc.id IS NOT NULL), '[]') AS sauces
       FROM visits v
@@ -91,9 +117,11 @@ export async function handleVisits(
     const queries = [
       sql`
         INSERT INTO visits (id, restaurant_id, user_id, visit_date, meat_types,
+          item_type, item_name, total_cost, regular_sauce_rating,
           value_rating, quantity_rating, atmosphere_rating, staff_rating, overall_rating, comments)
         VALUES (
           ${body.id}, ${body.restaurant_id}, ${payload.sub}, ${body.visit_date}, ${body.meat_types},
+          ${body.item_type ?? null}, ${body.item_name ?? null}, ${body.total_cost ?? null}, ${body.regular_sauce_rating ?? null},
           ${body.value_rating}, ${body.quantity_rating}, ${body.atmosphere_rating},
           ${body.staff_rating}, ${body.overall_rating}, ${body.comments ?? null}
         )
@@ -106,6 +134,30 @@ export async function handleVisits(
     ]
     await sql.transaction(queries)
     return ok({ id: body.id }, 201)
+  }
+
+  if (visitIdMatch && request.method === 'PUT') {
+    const existing = await sql`SELECT user_id FROM visits WHERE id = ${visitIdMatch[1]!}`
+    if (!existing.length) return new Response('Not Found', { status: 404 })
+    if (existing[0]!.user_id !== payload.sub) return new Response('Forbidden', { status: 403 })
+
+    const body = await request.json() as VisitUpdateBody
+    await sql`
+      UPDATE visits SET
+        visit_date = ${body.visit_date},
+        item_type = ${body.item_type ?? null},
+        item_name = ${body.item_name ?? null},
+        total_cost = ${body.total_cost ?? null},
+        regular_sauce_rating = ${body.regular_sauce_rating ?? null},
+        value_rating = ${body.value_rating},
+        quantity_rating = ${body.quantity_rating},
+        atmosphere_rating = ${body.atmosphere_rating},
+        staff_rating = ${body.staff_rating},
+        overall_rating = ${body.overall_rating},
+        comments = ${body.comments ?? null}
+      WHERE id = ${visitIdMatch[1]!}
+    `
+    return ok({ id: visitIdMatch[1]! })
   }
 
   return new Response('Not Found', { status: 404 })

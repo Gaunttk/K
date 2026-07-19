@@ -23,22 +23,29 @@ export default function RestaurantPage() {
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null)
   const [visits, setVisits] = useState<VisitWithRelations[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (id) void load(id)
   }, [id])
 
   async function load(restaurantId: string) {
-    const [r, v] = await Promise.all([
-      api.get<Restaurant>(`/restaurants/${restaurantId}`),
-      api.get<VisitWithRelations[]>(`/visits?restaurantId=${restaurantId}`),
-    ])
-    setRestaurant(r)
-    setVisits(v)
-    setLoading(false)
+    try {
+      const [r, v] = await Promise.all([
+        api.get<Restaurant>(`/restaurants/${restaurantId}`),
+        api.get<VisitWithRelations[]>(`/visits?restaurantId=${restaurantId}`),
+      ])
+      setRestaurant(r)
+      setVisits(v)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load restaurant')
+    } finally {
+      setLoading(false)
+    }
   }
 
   if (loading) return <div className="py-20 text-center text-text-muted">Loading...</div>
+  if (error) return <div className="py-20 text-center text-accent-red">{error}</div>
   if (!restaurant) return <div className="py-20 text-center text-text-muted">Restaurant not found.</div>
 
   const overall = avg(visits.map((v) => v.overall_rating))

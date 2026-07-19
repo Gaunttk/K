@@ -5,6 +5,7 @@ import { handleVisits } from './routes/visits'
 import { handlePhotos } from './routes/photos'
 import { handleUploadUrl } from './routes/upload-url'
 import { handleAdmin } from './routes/admin'
+import { handleAnalytics } from './routes/analytics'
 import { verifyJwt } from './jwt'
 import type { Env } from './types'
 
@@ -39,6 +40,7 @@ export default {
       // Protected routes
       if (path.startsWith('/admin/')) return addCors(await handleAdmin(request, env, payload, path))
       if (request.method === 'POST' && path === '/upload-url') return addCors(await handleUploadUrl(request, env))
+      if (request.method === 'GET' && path === '/analytics') return addCors(await handleAnalytics(env))
 
       const photoMatch = path.match(/^\/visits\/([^/]+)\/photos$/)
       if (request.method === 'POST' && photoMatch) return addCors(await handlePhotos(request, env, photoMatch[1]!))
@@ -49,7 +51,13 @@ export default {
       return addCors(new Response('Not Found', { status: 404 }))
     } catch (err) {
       console.error(err)
-      return addCors(new Response('Internal Server Error', { status: 500 }))
+      const message = err instanceof Error ? err.message : 'Internal Server Error'
+      return addCors(
+        new Response(JSON.stringify({ error: message }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        }),
+      )
     }
   },
 } satisfies ExportedHandler<Env>

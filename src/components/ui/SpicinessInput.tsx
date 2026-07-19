@@ -1,8 +1,8 @@
-import type { Rating } from '../../types'
+import type { SpicinessLevel } from '../../types'
 
 interface Props {
-  value: Rating | null
-  onChange?: (v: Rating) => void
+  value: SpicinessLevel | null
+  onChange?: (v: SpicinessLevel) => void
   readOnly?: boolean
 }
 
@@ -10,7 +10,7 @@ export default function SpicinessInput({ value, onChange, readOnly = false }: Pr
   if (readOnly) {
     return (
       <div className="flex gap-0.5" aria-label={`Spiciness: ${value ?? 0} out of 5`}>
-        {([1, 2, 3, 4, 5] as Rating[]).map((n) => (
+        {([1, 2, 3, 4, 5] as SpicinessLevel[]).map((n) => (
           <span
             key={n}
             className="text-lg leading-none transition-opacity"
@@ -26,7 +26,7 @@ export default function SpicinessInput({ value, onChange, readOnly = false }: Pr
 
   return (
     <div className="flex gap-0.5" role="radiogroup" aria-label="Spiciness level">
-      {([1, 2, 3, 4, 5] as Rating[]).map((n) => (
+      {([1, 2, 3, 4, 5] as SpicinessLevel[]).map((n) => (
         <button
           key={n}
           type="button"

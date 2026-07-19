@@ -54,6 +54,19 @@ export default function AppShell() {
             </svg>
             Feed
           </NavLink>
+          <NavLink
+            to="/analytics"
+            className={({ isActive }) =>
+              `flex flex-col items-center gap-0.5 text-xs transition-colors ${
+                isActive ? 'text-amber' : 'text-text-muted hover:text-text'
+              }`
+            }
+          >
+            <svg width={22} height={22} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6" />
+            </svg>
+            Stats
+          </NavLink>
           <button
             onClick={() => navigate('/visit/new')}
             className="flex flex-col items-center gap-0.5 text-xs bg-accent-red hover:bg-red-800 text-white px-4 py-2 rounded-full transition-colors font-heading tracking-wider"
